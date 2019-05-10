@@ -19,6 +19,8 @@ const RepositoryItem = ({ repository }) => (
 RepositoryItem.propTypes = {
   repository: PropTypes.shape({
     name: PropTypes.string,
+    avatar_url: PropTypes.string,
+    organization: PropTypes.string,
   }).isRequired,
 };
 
