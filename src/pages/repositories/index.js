@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  View, TextInput, TouchableOpacity, FlatList,
+  Text, View, TextInput, TouchableOpacity, FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -56,7 +56,9 @@ export default class Repositories extends Component {
   loadRepositories = async () => {
     const repositories = await AsyncStorage.getItem('@Gitissues:repositories');
 
-    this.setState({ data: JSON.parse(repositories) });
+    if (repositories) {
+      this.setState({ data: JSON.parse(repositories) });
+    }
   }
 
   saveRepositories = async () => {
@@ -71,6 +73,7 @@ export default class Repositories extends Component {
 
     try {
       const { data } = await api.get(`/repos/${this.repositoryinput}`);
+      console.tron.log(data);
       this.addItem = {
         id: data.id,
         name: data.name,
@@ -94,6 +97,11 @@ export default class Repositories extends Component {
         data={data}
         keyExtractor={item => String(item.id)}
         renderItem={({ item }) => <RepositoryItem repository={item} />}
+        ListEmptyComponent={() => (
+          <Text style={styles.empty}>
+            Você ainda não adicionou nenhum repositório
+          </Text>
+        )}
       />
     );
   }

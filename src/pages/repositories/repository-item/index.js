@@ -12,7 +12,7 @@ const RepositoryItem = ({ repository }) => (
       <Text style={styles.name}>{repository.name}</Text>
       <Text style={styles.organization}>{repository.organization}</Text>
     </View>
-    <Icon name="chevron-right" color="light" />
+    <Icon name="chevron-right" color="light" size={10} />
   </View>
 );
 

@@ -7,6 +7,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  empty: {
+    marginHorizontal: metrics.baseMargin * 2,
+  },
+
   form: {
     alignItems: 'center',
     borderBottomWidth: metrics.baseBorder,
@@ -26,7 +30,6 @@ const styles = StyleSheet.create({
     marginRight: metrics.baseMargin * 2,
     paddingHorizontal: metrics.basePadding,
   },
-
 });
 
 export default styles;

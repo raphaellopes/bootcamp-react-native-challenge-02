@@ -1,5 +1,5 @@
 export default {
-  small: 12,
+  small: 10,
   base: 14,
   large: 16,
 };
