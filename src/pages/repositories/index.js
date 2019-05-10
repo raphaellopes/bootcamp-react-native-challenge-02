@@ -19,6 +19,10 @@ export default class Repositories extends Component {
     data: [],
   }
 
+  componentDidMount() {
+    this.loadRepositories();
+  }
+
   // getters and settters
   set repositoryinput(repositoryinput) {
     this.setState({ repositoryinput });
@@ -47,10 +51,6 @@ export default class Repositories extends Component {
         item,
       ],
     });
-  }
-
-  componentDidMount() {
-    this.loadRepositories();
   }
 
   loadRepositories = async () => {
