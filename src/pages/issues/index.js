@@ -9,6 +9,7 @@ import Header from '~/components/header';
 import Spinner from '~/components/spinner';
 import ListItem from '~/components/list-item';
 
+import Filters from './filters';
 import styles from './styles';
 
 export default class Issues extends Component {
@@ -21,6 +22,17 @@ export default class Issues extends Component {
   state = {
     loading: true,
     data: [],
+    filters: [
+      {
+        id: 1, label: 'Todas', value: 'all', active: true,
+      },
+      {
+        id: 2, label: 'Abertas', value: 'open', active: false,
+      },
+      {
+        id: 3, label: 'Fechadas', value: 'closed', active: false,
+      },
+    ],
   }
 
   componentDidMount() {
@@ -41,6 +53,32 @@ export default class Issues extends Component {
     return this.state.loading;
   }
 
+  get filters() {
+    return this.state.filters;
+  }
+
+  set filter(filter) {
+    const filters = this.filters.map((item) => {
+      if (item.id === filter.id) {
+        item.active = true;
+      } else {
+        item.active = false;
+      }
+
+      return item;
+    });
+
+    this.setState({ filters });
+  }
+
+  get data() {
+    const filter = this.filters.find(item => item.active);
+    if (filter.value === 'all') {
+      return this.state.data;
+    }
+    return this.state.data.filter(item => item.state === filter.value);
+  }
+
   handleBack = () => {
     this.props.navigation.navigate('Repositories');
   }
@@ -50,7 +88,7 @@ export default class Issues extends Component {
     const fullName = navigation.getParam('repositoryFullName');
 
     try {
-      const { data } = await api.get(`/repos/${fullName}/issues`);
+      const { data } = await api.get(`/repos/${fullName}/issues?state=all`);
       this.setState({ data });
       this.loading = false;
     } catch (err) {
@@ -76,7 +114,7 @@ export default class Issues extends Component {
 
   renderList = () => (
     <FlatList
-      data={this.state.data}
+      data={this.data}
       keyExtractor={item => String(item.id)}
       renderItem={this.renderItem}
       ListEmptyComponent={() => (
@@ -87,10 +125,18 @@ export default class Issues extends Component {
     />
   )
 
+  renderFilters = () => !this.loading && (
+    <Filters
+      items={this.filters}
+      onItemPress={(item) => { this.filter = item; }}
+    />
+  )
+
   render() {
     return (
       <View style={styles.container}>
         <Header title={this.title} onPressBack={this.handleBack} />
+        {this.renderFilters()}
         {this.loading ? <Spinner style={styles.spinner} /> : this.renderList()}
       </View>
     );
