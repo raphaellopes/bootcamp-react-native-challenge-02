@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
+  Linking,
   Text, View, FlatList,
 } from 'react-native';
+import PropTypes from 'prop-types';
+
 
 import api from '~/services/api';
 import Header from '~/components/header';
@@ -96,8 +98,12 @@ export default class Issues extends Component {
     }
   }
 
-  handlePressItem = (issue) => {
-    console.tron.log({ issue });
+  handlePressItem = (id) => {
+    const issue = this.data.find(item => item.id === id);
+
+    Linking
+      .openURL(issue.html_url)
+      .catch(err => console.tron.error(err));
   }
 
   // renders
