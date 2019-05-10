@@ -7,6 +7,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  spinner: {
+    marginTop: metrics.baseMargin * 2,
+  },
 });
 
 export default styles;

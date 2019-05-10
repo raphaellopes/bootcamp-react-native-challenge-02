@@ -7,6 +7,10 @@ const styles = StyleSheet.create({
     width: 25,
   },
 
+  avatarRounded: {
+    borderRadius: 25 / 2,
+  },
+
   container: {
     alignItems: 'center',
     backgroundColor: colors.white,
@@ -23,15 +27,15 @@ const styles = StyleSheet.create({
     marginHorizontal: metrics.baseMargin,
   },
 
-  name: {
+  subTitle: {
+    color: colors.light,
+    fontSize: fonts.small,
+  },
+
+  title: {
     color: colors.darker,
     fontSize: fonts.base,
     fontWeight: 'bold',
-  },
-
-  organization: {
-    color: colors.light,
-    fontSize: fonts.small,
   },
 });
 

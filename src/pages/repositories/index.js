@@ -9,8 +9,8 @@ import api from '~/services/api';
 import Header from '~/components/header';
 import Icon from '~/components/icon';
 import Spinner from '~/components/spinner';
+import ListItem from '~/components/list-item';
 
-import RepositoryItem from './repository-item';
 import styles from './styles';
 
 // AsyncStorage.clear();
@@ -62,6 +62,10 @@ export default class Repositories extends Component {
     });
   }
 
+  get data() {
+    return this.state.data;
+  }
+
   loadRepositories = async () => {
     const repositories = await AsyncStorage.getItem('@Gitissues:repositories');
 
@@ -73,7 +77,7 @@ export default class Repositories extends Component {
   saveRepositories = async () => {
     await AsyncStorage.setItem(
       '@Gitissues:repositories',
-      JSON.stringify(this.state.data),
+      JSON.stringify(this.data),
     );
   }
 
@@ -85,7 +89,8 @@ export default class Repositories extends Component {
       this.addItem = {
         id: data.id,
         name: data.name,
-        avatar_url: data.organization.avatar_url,
+        fullName: data.full_name,
+        avatar: data.organization.avatar_url,
         organization: data.organization.login,
       };
       await this.saveRepositories();
@@ -96,16 +101,24 @@ export default class Repositories extends Component {
     }
   }
 
-  handlePressItem = ({ id, name }) => {
+  handlePressItem = (id) => {
+    const { id: repoId, name, fullName } = this.data.find(item => item.id === id);
     this.props.navigation.navigate('Issues', {
-      repositoryId: id,
+      repositoryId: repoId,
       repositoryName: name,
+      repositoryFullName: fullName,
     });
   }
 
   // renders
   renderItem = ({ item }) => (
-    <RepositoryItem repository={item} onPress={this.handlePressItem} />
+    <ListItem
+      id={item.id}
+      title={item.name}
+      subTitle={item.organization}
+      avatar={item.avatar}
+      onPress={this.handlePressItem}
+    />
   );
 
   renderList() {
