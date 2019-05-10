@@ -15,6 +15,12 @@ import styles from './styles';
 
 // AsyncStorage.clear();
 
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
 export default class Repositories extends Component {
   static propTypes = {
     navigation: PropTypes.shape({
@@ -25,6 +31,7 @@ export default class Repositories extends Component {
   state = {
     repositoryinput: '',
     loading: false,
+    refreshing: false,
     data: [],
   }
 
@@ -47,6 +54,14 @@ export default class Repositories extends Component {
 
   get loading() {
     return this.state.loading;
+  }
+
+  set refreshing(refreshing) {
+    this.setState({ refreshing });
+  }
+
+  get refreshing() {
+    return this.state.refreshing;
   }
 
   set addItem(item) {
@@ -81,24 +96,48 @@ export default class Repositories extends Component {
     );
   }
 
+  getRepoDataFromApi = async (repo) => {
+    const { data } = await api.get(`/repos/${repo}`);
+    this.addItem = {
+      id: data.id,
+      name: data.name,
+      fullName: data.full_name,
+      avatar: data.organization.avatar_url,
+      organization: data.organization.login,
+    };
+    await this.saveRepositories();
+    return data;
+  }
+
   addRepository = async () => {
     this.loading = true;
 
     try {
-      const { data } = await api.get(`/repos/${this.repositoryinput}`);
-      this.addItem = {
-        id: data.id,
-        name: data.name,
-        fullName: data.full_name,
-        avatar: data.organization.avatar_url,
-        organization: data.organization.login,
-      };
-      await this.saveRepositories();
+      await this.getRepoDataFromApi(this.repositoryinput);
       this.loading = false;
       this.repositoryinput = '';
     } catch (err) {
       console.tron.error(err);
+      this.loading = false;
+      this.repositoryinput = '';
     }
+  }
+
+  handleUpdate = async () => {
+    this.refreshing = true;
+    this.setState({ data: [] });
+    let repositories = await AsyncStorage.getItem('@Gitissues:repositories');
+
+    if (repositories) {
+      repositories = JSON.parse(repositories).map(repo => repo.fullName);
+      console.tron.log(repositories);
+
+      await asyncForEach(repositories, async (repo) => {
+        await this.getRepoDataFromApi(repo);
+      });
+    }
+
+    this.refreshing = false;
   }
 
   handlePressItem = (id) => {
@@ -121,22 +160,23 @@ export default class Repositories extends Component {
     />
   );
 
-  renderList() {
-    const { data } = this.state;
-
-    return (
-      <FlatList
-        data={data}
-        keyExtractor={item => String(item.id)}
-        renderItem={this.renderItem}
-        ListEmptyComponent={() => (
-          <Text style={styles.empty}>
-            Você ainda não adicionou nenhum repositório
-          </Text>
-        )}
-      />
-    );
-  }
+  renderList = () => (
+    <FlatList
+      data={this.data}
+      keyExtractor={item => String(item.id)}
+      renderItem={this.renderItem}
+      refreshing={this.refreshing}
+      onRefresh={this.handleUpdate}
+      ListEmptyComponent={() => (
+        <Text style={styles.empty}>
+          {this.refreshing
+            ? ''
+            : 'Você ainda não adicionou nenhum repositório'
+          }
+        </Text>
+      )}
+    />
+  );
 
   renderForm() {
     return (
