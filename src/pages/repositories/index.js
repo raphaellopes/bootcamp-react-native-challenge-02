@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { PropTypes } from 'prop-types';
 import {
   Text, View, TextInput, TouchableOpacity, FlatList,
 } from 'react-native';
@@ -12,7 +13,15 @@ import Spinner from '~/components/spinner';
 import RepositoryItem from './repository-item';
 import styles from './styles';
 
+// AsyncStorage.clear();
+
 export default class Repositories extends Component {
+  static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+    }).isRequired,
+  }
+
   state = {
     repositoryinput: '',
     loading: false,
@@ -73,7 +82,6 @@ export default class Repositories extends Component {
 
     try {
       const { data } = await api.get(`/repos/${this.repositoryinput}`);
-      console.tron.log(data);
       this.addItem = {
         id: data.id,
         name: data.name,
@@ -88,7 +96,18 @@ export default class Repositories extends Component {
     }
   }
 
+  handlePressItem = ({ id, name }) => {
+    this.props.navigation.navigate('Issues', {
+      repositoryId: id,
+      repositoryName: name,
+    });
+  }
+
   // renders
+  renderItem = ({ item }) => (
+    <RepositoryItem repository={item} onPress={this.handlePressItem} />
+  );
+
   renderList() {
     const { data } = this.state;
 
@@ -96,7 +115,7 @@ export default class Repositories extends Component {
       <FlatList
         data={data}
         keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => <RepositoryItem repository={item} />}
+        renderItem={this.renderItem}
         ListEmptyComponent={() => (
           <Text style={styles.empty}>
             Você ainda não adicionou nenhum repositório
